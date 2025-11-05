@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./SignUp.css";
+import { NavLink } from "react-router-dom";
 
 export default function SignUp() {
   const [userData, setUserData] = useState({
@@ -146,6 +147,10 @@ export default function SignUp() {
         >
           {loading ? "Signing Up..." : "Sign Up"}
         </button>
+
+        <p className="form-footer">
+          Already have an account? <NavLink to="/">Login</NavLink>
+        </p>
       </form>
     </div>
   );

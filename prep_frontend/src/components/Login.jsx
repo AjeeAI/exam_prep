@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./Login.css"; 
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState({
     email: "",
     password: "",
@@ -72,6 +74,7 @@ export default function Login() {
       }
 
       setSuccessMsg("Login successful!");
+      navigate("/homepage");
       console.log("User data:", data);
 
       // Optionally: redirect or save token
