@@ -111,3 +111,21 @@ def login(input: Login):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/products")
+
+def products():
+    try:
+        get_products = text("""
+SELECT * from products_table
+                        """)
+        result = db.execute(get_products).mappings().all()
+        
+        if not result:
+            return "No products yet. Try again later."
+
+        return {"products": result}
+        
+    except HTTPException as e:
+        return {"detail": str(e)}
+        

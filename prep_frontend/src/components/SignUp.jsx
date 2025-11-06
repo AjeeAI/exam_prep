@@ -1,8 +1,9 @@
 import { useState } from "react";
 import "./SignUp.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+  const navigate = useNavigate("");
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -84,6 +85,7 @@ export default function SignUp() {
 
       setSubmitted(true);
       setSuccessMsg("Registration successful! You can now log in.");
+      navigate("/");
       setUserData({ name: "", email: "", password: "" });
     } catch (err) {
       setApiError(err.message);
