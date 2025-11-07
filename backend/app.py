@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware  
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -6,11 +6,12 @@ from sqlalchemy import text
 from database import db
 import bcrypt
 import os
-
+import jwt
+from middleware import create_token, verify_token
 load_dotenv()
 
 app = FastAPI(title="Prep backend execution", version="1.0.0")
-
+token_time = int(os.getenv("token_time"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -105,7 +106,14 @@ def login(input: Login):
         if not verified_password:
             raise HTTPException(status_code=401, detail="Invalid email or password")
 
-        return {"message": "Login Successful"}
+        encoded_token = create_token(details= {
+            "id": result.id,
+            "name": result.name,
+            "email": result.email,
+            "userType": result.userType
+        }, expiry=token_time)
+        return {"message": "Login Successful",
+                "token": encoded_token}
 
     except HTTPException as e:
         raise e
@@ -128,4 +136,63 @@ SELECT * from products_table
         
     except HTTPException as e:
         return {"detail": str(e)}
+
+
+class add_products(BaseModel):
+    name: str= Field(..., example="Gionee M11")
+    category: str= Field(..., example="Phones")
+    price: float= Field(..., example=150000.00)
+    quantity: int=Field(..., example=10)
+    
+@app.post("/add_products")
+def add_products(input: add_products, userData = Depends(verify_token)):
+    try:
+        print(userData)
+        if userData["userType"] != "admin":
+            raise HTTPException(status_code=401, detail="You are not authorized to add a product")
         
+        query = text("""
+                   INSERT INTO products_table(name, category, price, quantity)
+                   VALUES (:name, :category, :price, :quantity)
+                     """)
+        db.execute(query, {"name": input.name, "category": input.category, "price": input.price, "quantity": input.quantity})
+        db.commit()
+        
+        return {
+            "message": "Product added successfully",
+            "data": {"name": input.name, "category": input.category, "price": input.price, "quantity": input.quantity}
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class DeleteInput(BaseModel):
+    id: int
+
+@app.delete("/delete")
+def delete_product(input: DeleteInput, userData = Depends(verify_token)):
+    try:
+        id = int(input.id)  # ensure it's an integer (even if stringified)
+        
+        if userData["userType"] != "admin":
+            raise HTTPException(
+                status_code=400, 
+                detail="You are not authorized to perform this action!!!"
+            )
+
+        delete_query = text("""
+            DELETE FROM products_table
+            WHERE id = :id
+        """)
+        result = db.execute(delete_query, {"id": id})
+        db.commit()
+
+        if result.rowcount == 0:
+            return {"message": "No product found with this ID."}
+
+        return {"message": "Product deleted successfully."}
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -17,8 +17,9 @@ CREATE TABLE IF NOT EXISTS users_table(
 id INT AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(100) NOT NULL,
 email VARCHAR(100) NOT NULL,
-password VARCHAR(100) NOT NULL
-)                       
+password VARCHAR(100) NOT NULL,
+userType VARCHAR(10) DEFAULT "user"
+);                       
                           """)
 
 db.execute(create_users_table)

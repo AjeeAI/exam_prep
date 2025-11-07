@@ -106,6 +106,7 @@ export default function SignUp() {
             name="name"
             value={userData.name}
             onChange={handleChange}
+            placeholder="Name"
             className={errors.name ? "error" : ""}
           />
           {errors.name && <span className="error-text">{errors.name}</span>}

@@ -1,6 +1,7 @@
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+import AdminDashboard from "./components/AdminDashboard";
 import {Routes, Route} from "react-router-dom"
 
 export default function App(){
@@ -11,7 +12,8 @@ export default function App(){
     <Routes>
       <Route path="/" element={<Login/>}/>
       <Route path="/signup" element={<SignUp/>}/>
-      <Route path="homepage" element={<Dashboard/>}/>
+      <Route path="/homepage" element={<Dashboard/>}/>
+      <Route path="/admin_dashboard" element={<AdminDashboard/>}/>
     </Routes>
    </div>
   )

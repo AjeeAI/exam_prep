@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import "./Dashboard.css"
-export default function ProductsList() {
+import "./AdminDashboard.css"
+export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +22,37 @@ export default function ProductsList() {
     }
   }
 
+  async function Delete(id) {
+  try {
+    const token = localStorage.getItem("token"); // or sessionStorage depending on your setup
+
+    const response = await fetch("http://127.0.0.1:8000/delete", {
+  method: "DELETE",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify({ id: id}),
+});
+
+
+
+    console.log("Response status:", response.status);
+
+    if (!response.ok) {
+      throw new Error("Error occured while executing!");
+    }
+
+    const data = await response.json();
+    console.log("Delete success:", data);
+    getProducts();
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 
 
   useEffect(() => {
@@ -41,7 +72,7 @@ export default function ProductsList() {
         <div className="product-list">
           {products.map((product) => (
             <div key={product.id} className="product-card">
-                
+                <button className="del-button" onClick={() => Delete(product.id)}>🗑️</button>
                 <p>{product.name}</p>
                 <p>{product.category}</p>
                 <p>{product.price.toLocaleString()}</p>

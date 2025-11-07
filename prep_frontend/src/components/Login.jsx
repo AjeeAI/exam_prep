@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
+  // const token = localStorage.getItem("token");
+  // console.log(token)
   const [userData, setUserData] = useState({
     email: "",
     password: "",
@@ -72,13 +74,21 @@ export default function Login() {
       if (!response.ok) {
         throw new Error(data.detail || "Invalid email or password");
       }
-
+      
       setSuccessMsg("Login successful!");
-      navigate("/homepage");
+      if (data.userType === "admin") {
+        navigate("/admin_dashboard");
+      } else {
+        navigate("/homepage");
+      }
+
       console.log("User data:", data);
 
+      // navigate("/homepage");
+      console.log("User data:", data);
       // Optionally: redirect or save token
-      // localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.token);
+      
     } catch (error) {
       setApiError(error.message);
     } finally {
